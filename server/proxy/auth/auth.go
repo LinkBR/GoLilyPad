@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"strconv"
 	"net/http"
 )
 
@@ -16,6 +18,26 @@ type GameProfileProperty struct {
 	Name string `json:"name"`
 	Value string `json:"value"`
 	Signature string `json:"signature"`
+}
+
+func HasPaid(name string) (b bool) {
+	resp, err := http.Get("https://minecraft.net/haspaid.jsp?user=" + name)
+
+	if err == nil {
+		defer resp.Body.Close()
+		contents, err := ioutil.ReadAll(resp.Body)
+		if err == nil {
+			fmt.Printf(string(contents))
+			check, err := strconv.ParseBool(string(contents))
+
+			if err == nil {
+				b = check
+				return
+			}
+		}
+	}
+	b = true
+	return
 }
 
 func Authenticate(name string, serverId string, sharedSecret []byte, publicKey []byte) (profile GameProfile, err error) {

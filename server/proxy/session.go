@@ -331,7 +331,8 @@ func (this *Session) HandlePacket(packet packet.Packet) (err error) {
 	case STATE_LOGIN:
 		if packet.Id() == minecraft.PACKET_SERVER_LOGIN_START {
 			this.name = packet.(*minecraft.PacketServerLoginStart).Name
-			if this.server.Authenticate() {
+			// if this.server.Authenticate() {
+			if auth.HasPaid(this.name) {
 				this.serverId, err = GenSalt()
 				if err != nil {
 					return
@@ -350,6 +351,7 @@ func (this *Session) HandlePacket(packet packet.Packet) (err error) {
 					Id: GenNameUUID("OfflinePlayer:" + this.name),
 					Properties: make([]auth.GameProfileProperty, 0),
 				}
+				this.serverAddress = "login"
 				this.SetAuthenticated(true)
 			}
 		} else {
